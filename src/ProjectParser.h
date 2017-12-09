@@ -21,43 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef SRC_PROJECTPARSER_H_
+#define SRC_PROJECTPARSER_H_
 
 #include "DataStructure.h"
-#include "TarjanSolver.h"
-#include "ProjectParser.h"
 
-using namespace std;
-
-int main()
+/**
+ * ,
+ * Input: set of dirs to search recursively
+ *
+ *
+ *
+ */
+namespace ProjectParser
 {
-  Node a("a");
-  Node b("b");
+  /**
+   * This is the C/C++ header parser
+   * @param parseDirs     Input: set of dirs to search recursively
+   * @param excludedFiles Input: set of excluded files
+   * @param output        Output: Graph of all nodes of header files,
+   *                              child nodes are included files
+   * @return 0 on success
+   *         1 if 1 of parseDirs not exists
+   *         2 if no headers in all dirs
+   *         <0 on critical error
+   */
+  int parse(const set<string>& parseDirs, const set<string>& excludedFiles,
+      Graph& output);
+  int parse(const set<string>& parseDirs, Graph& output);
+  int parse(const string& parseDir, Graph& output);
+};
 
-  a.childNodes.insert(b.id);
-  b.childNodes.insert(a.id);
-
-  Graph graph;
-  graph.insert(a);
-  graph.insert(b);
-
-  TarjanSolver solver(graph);
-  solver.solve();
-  auto solution = solver.getSolution();
-
-  cout << "Solution: \n";
-  for (auto oneSet : solution)
-  {
-    cout << "( ";
-    for (auto id : oneSet)
-    {
-      cout << id << " ";
-    }
-    cout << ")\n";
-  }
-
-  Common::setDebugMode();
-  ProjectParser::parse("src", graph);
-
-  return 0;
-}
-
+#endif /* SRC_PROJECTPARSER_H_ */
