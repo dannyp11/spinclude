@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 #include "Common.h"
+#include <sys/stat.h>
 
 static bool g_isDebugMode = false;
 
@@ -35,3 +36,15 @@ bool Common::isDebugMode()
   return g_isDebugMode;
 }
 
+bool Common::isDirExist(const string& dirPath)
+{
+  struct stat sb;
+  return stat(dirPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode);
+}
+
+bool Common::isFileExist(const string& filePath)
+{
+  struct stat path_stat;
+  stat(filePath.c_str(), &path_stat);
+  return S_ISREG(path_stat.st_mode);
+}

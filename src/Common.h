@@ -60,6 +60,12 @@ namespace Common
  */
 void setDebugMode(bool enable = true);
 bool isDebugMode();
+
+/**
+ * Check for existence of file/dir path
+ */
+bool isDirExist(const string& dirPath);
+bool isFileExist(const string& filePath);
 }
 
 #endif /* SRC_COMMON_H_ */

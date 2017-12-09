@@ -37,8 +37,10 @@ int main()
   b.childNodes.insert(a.id);
 
   Graph graph;
-  graph.insert(a);
-  graph.insert(b);
+//  graph.insert(a);
+//  graph.insert(b);
+  Common::setDebugMode();
+  ProjectParser::parse("src", graph);
 
   TarjanSolver solver(graph);
   solver.solve();
@@ -55,8 +57,6 @@ int main()
     cout << ")\n";
   }
 
-  Common::setDebugMode();
-  ProjectParser::parse("src", graph);
 
   return 0;
 }

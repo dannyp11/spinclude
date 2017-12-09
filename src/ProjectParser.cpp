@@ -23,34 +23,17 @@
  */
 #include "ProjectParser.h"
 #include <dirent.h>
-#include <sys/stat.h>
 #include <libgen.h>
 #include <string.h>
 #include <algorithm>
 
 static const set<string> HEADER_EXTENSIONS = {".h", ".hpp"};
 
-bool is_dir(const string& path)
-{
-  struct stat sb;
-  if (stat(path.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
-  {
-    return true;
-  }
-  return false;
-}
-
 bool is_header_file(const string& path, bool checkForExist = true)
 {
-  if (checkForExist)
+  if (checkForExist && !Common::isFileExist(path))
   {
-    struct stat path_stat;
-    stat(path.c_str(), &path_stat);
-    if (!S_ISREG(path_stat.st_mode))
-    {
-      // not a file
-      return false;
-    }
+    return false;
   }
 
   for (const string& ext : HEADER_EXTENSIONS)
@@ -146,8 +129,7 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
 {
   int retVal = 0;
   // check for existence
-  struct stat sb;
-  if (false == (stat(dirPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)))
+  if (!Common::isDirExist(dirPath))
   {
     return 1;
   }
@@ -167,7 +149,7 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
         continue;
       }
 
-      if (is_dir(itemPath))
+      if (Common::isDirExist(itemPath))
       {
         LOG_DEBUG("Found dir " << itemPath);
         const int parseVal = parse_one_dir(itemPath, excludedFiles, output);
