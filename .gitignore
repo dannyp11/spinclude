@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.obj
+*.ogtest
 
 # Precompiled Headers
 *.gch
@@ -30,3 +31,6 @@
 *.exe
 *.out
 *.app
+*/spinclude
+spinclude
+.gdb_history
