@@ -52,12 +52,19 @@ bool is_header_file(const string& path, bool checkForExist = true)
   return false;
 }
 
+const string& get_basename(const string& filePath)
+{
+  static string retVal;
+  static char file_path[PATH_MAX];
+  strcpy(file_path, filePath.c_str());
+  retVal = basename(file_path);
+  return retVal;
+}
+
 void process_header_file(const string& filePath, const set<string>& excludedFiles,
     Graph& output)
 {
-  static char file_path[PATH_MAX];
-  strcpy(file_path, filePath.c_str());
-  Node fileNode(basename(file_path));
+  Node fileNode(get_basename(filePath));
 
   // Only the first 2000 lines of file is process for performance
   int lineNum = 0;
@@ -98,10 +105,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
       }
 
       string includedHeader = lineStr.substr(sig.size(), foundPos - sig.size());
-      static char includedHeaderPath[PATH_MAX];
-      strcpy(includedHeaderPath, includedHeader.c_str());
-
-      includedHeader = basename(includedHeaderPath);
+      includedHeader = get_basename(includedHeader);
       if (excludedFiles.end() == excludedFiles.find(includedHeader))
       {
         // Only add if not found in excluded set
@@ -117,6 +121,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
   }
   fclose(file);
 
+  // Finally update output graph
   output.insert(fileNode);
 }
 
@@ -166,8 +171,16 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
       }
       else if (is_header_file(itemPath))
       {
-        LOG_DEBUG("Found header " << itemPath);
-        process_header_file(itemPath, excludedFiles, output);
+        if (excludedFiles.end() == excludedFiles.find(get_basename(itemPath)))
+        {
+          LOG_DEBUG("Found header " << itemPath);
+          process_header_file(itemPath, excludedFiles, output);
+        }
+        else
+        {
+          LOG_DEBUG("Ignored header " << itemPath);
+          continue;
+        }
       }
       else
       {
@@ -207,13 +220,18 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
 
 int ProjectParser::parse(const set<string>& parseDirs, Graph& output)
 {
-  set<string> emptyExcludedFiles;
+  set<string> emptyExcludedFiles = {};
   return parse(parseDirs, emptyExcludedFiles, output);
+}
+
+int ProjectParser::parse(const string& parseDir, const set<string>& excludedFiles, Graph& output)
+{
+  set<string> oneDir = {parseDir};
+  return parse(oneDir, excludedFiles, output);
 }
 
 int ProjectParser::parse(const string& parseDir, Graph& output)
 {
-  set<string> oneDir;
-  oneDir.insert(parseDir);
-  return parse(oneDir, output);
+  set<string> excludeNoFile = {};
+  return parse(parseDir, excludeNoFile, output);
 }

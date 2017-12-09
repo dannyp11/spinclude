@@ -26,13 +26,6 @@
 
 #include "DataStructure.h"
 
-/**
- * ,
- * Input: set of dirs to search recursively
- *
- *
- *
- */
 namespace ProjectParser
 {
   /**
@@ -50,6 +43,7 @@ namespace ProjectParser
       Graph& output);
   int parse(const set<string>& parseDirs, Graph& output);
   int parse(const string& parseDir, Graph& output);
+  int parse(const string& parseDir, const set<string>& excludedFiles, Graph& output);
 };
 
 #endif /* SRC_PROJECTPARSER_H_ */

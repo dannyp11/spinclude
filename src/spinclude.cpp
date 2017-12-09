@@ -40,7 +40,8 @@ int main()
 //  graph.insert(a);
 //  graph.insert(b);
   Common::setDebugMode();
-  ProjectParser::parse("src", graph);
+  set<string> excludedFiles = {"Common.h"};
+  ProjectParser::parse("src", excludedFiles, graph);
 
   TarjanSolver solver(graph);
   solver.solve();
