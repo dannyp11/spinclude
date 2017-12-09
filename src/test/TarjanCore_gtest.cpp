@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2017 Dat
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #include "gtest/gtest.h"
 #include "TarjanCore.h"
 
@@ -29,7 +52,7 @@ TEST_F(CoreAlgoTest, Test2Nodes1Circle)
   graph.insert(node2);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(1, solution.size());
@@ -47,7 +70,7 @@ TEST_F(CoreAlgoTest, Test2Nodes2Circle)
   graph.insert(node2);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(2, solution.size());
@@ -71,7 +94,7 @@ TEST_F(CoreAlgoTest, Test3Nodes2Circle)
   graph.insert(node3);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(2, solution.size());
@@ -95,7 +118,7 @@ TEST_F(CoreAlgoTest, Test3Nodes1Circle)
   graph.insert(node3);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(1, solution.size());
@@ -122,7 +145,7 @@ TEST_F(CoreAlgoTest, Test4Nodes2Circle)
   graph.insert(node4);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(2, solution.size());
@@ -152,7 +175,7 @@ TEST_F(CoreAlgoTest, Test5Nodes3Circle)
   graph.insert(node4);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(3, solution.size());
@@ -182,7 +205,7 @@ TEST_F(CoreAlgoTest, Test4Nodes2Circle2)
 
   TarjanCore coreSolver(graph);
   coreSolver.dumpInfo(stdout);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(2, solution.size());
@@ -229,7 +252,7 @@ TEST_F(CoreAlgoTest, TestComprehensive)
 
   TarjanCore coreSolver(graph);
   coreSolver.dumpInfo(stdout);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(4, solution.size());
@@ -279,7 +302,7 @@ TEST_F(CoreAlgoTest, TestComprehensive2)
   graph.insert(nodeh);
 
   TarjanCore coreSolver(graph);
-  EXPECT_TRUE(coreSolver.solve());
+  ASSERT_TRUE(coreSolver.solve());
 
   auto solution = coreSolver.getSolution();
   EXPECT_EQ(4, solution.size());
