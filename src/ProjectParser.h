@@ -34,7 +34,7 @@ namespace ProjectParser
    * @param excludedFiles Input: set of excluded files
    * @param output        Output: Graph of all nodes of header files,
    *                              child nodes are included files
-   * @return 0 on success
+   * @return 0 on success, other err code are bitwise updated
    *         1 if 1 of parseDirs not exists
    *         2 if no headers in all dirs
    *         <0 on critical error

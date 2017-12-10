@@ -205,7 +205,7 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     if (0 > helperRetval)
     {
       // Only stop if we hit critical error
-      retVal = helperRetval;
+      retVal |= helperRetval;
       break;
     }
     else if (0 < helperRetval)
@@ -213,6 +213,11 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
       retVal = helperRetval;
       continue;
     }
+  }
+
+  if (output.empty())
+  {
+    retVal |= 2;
   }
 
   return retVal;
