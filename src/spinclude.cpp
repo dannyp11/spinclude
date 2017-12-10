@@ -76,6 +76,12 @@ static void errorHandler(int signo)
 
 static void exportDefaultCfgFile()
 {
+  if (Common::isFileExist(DEFAULT_CFG_FILE))
+  {
+    LOG_WARN(DEFAULT_CFG_FILE << " already exists");
+    safeExit(1);
+  }
+
   std::ofstream defCfgFile(DEFAULT_CFG_FILE.c_str(), std::ofstream::binary);
   defCfgFile.write((char*)DefaultProjectDescription_cfg, DefaultProjectDescription_cfg_len);
   defCfgFile.close();

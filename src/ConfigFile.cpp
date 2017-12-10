@@ -47,9 +47,9 @@ bool ConfigFile::parse()
   if (mParseSuccess)
   {
     const ConfigData defaultData;
-    mData.projDirs = getFromRawData("PROJECT_DIRS", defaultData.projDirs);
-    mData.excludedDirs = getFromRawData("EXCLUDE_DIRS", defaultData.excludedDirs);
-    mData.excludedFiles = getFromRawData("EXCLUDE_FILES", defaultData.excludedFiles);
+    mData.projDirs = getFromRawData_("PROJECT_DIRS", defaultData.projDirs);
+    mData.excludedDirs = getFromRawData_("EXCLUDE_DIRS", defaultData.excludedDirs);
+    mData.excludedFiles = getFromRawData_("EXCLUDE_FILES", defaultData.excludedFiles);
   }
 
   return mParseSuccess;
@@ -94,7 +94,7 @@ bool ConfigFile::parseRawData_()
     }
 
     // Now get key and values
-    string key = line.substr(0, foundEq-1);
+    string key = line.substr(0, foundEq);
     string values = line.substr(foundEq+1, line.size() - foundEq -1);
 
     // Split up values to a set of values
@@ -116,7 +116,7 @@ bool ConfigFile::parseRawData_()
   return true;
 }
 
-const set<string>& ConfigFile::getFromRawData(const string& key, const set<string>& defaultVals)
+const set<string>& ConfigFile::getFromRawData_(const string& key, const set<string>& defaultVals)
 {
   if (mParsedRawData.end() != mParsedRawData.find(key))
   {

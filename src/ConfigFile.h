@@ -65,7 +65,7 @@ private:
   /**
    * get data from mParsedRawData
    */
-  const set<string>& getFromRawData(const string& key,
+  const set<string>& getFromRawData_(const string& key,
                                     const set<string>& defaultVals);
 
 private:

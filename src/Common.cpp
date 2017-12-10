@@ -83,8 +83,8 @@ const string& Common::getRealPath(const string& path)
   }
   else
   {
-    LOG_ERROR("Realpath " << strerror(errno));
-    retVal = "";
+    LOG_WARN("Realpath for " << path << ": " << strerror(errno));
+    retVal = path;
   }
   return retVal;
 }
