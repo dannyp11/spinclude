@@ -107,7 +107,6 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
         {
           includedHeader = Common::getBaseName(includedHeader);
           fileNode.childNodes.insert(includedHeader);
-          LOG_DEBUG(fileName << " -> " << includedHeader);
         }
       }
     }
@@ -116,6 +115,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
 
   // Finally update output graph
   output.insert(fileNode);
+  LOG_DEBUG(fileNode);
 }
 
 /**
@@ -123,7 +123,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
  * @return same as ProjectParser::parse
  */
 int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
-    Graph& output)
+    Graph& output, map<string, set<string> >& headerFullPathMap)
 {
   int retVal = 0;
   // check for existence
@@ -149,7 +149,7 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
 
       if (Common::isDirExist(itemPath))
       {
-        const int parseVal = parse_one_dir(itemPath, excludedFiles, output);
+        const int parseVal = parse_one_dir(itemPath, excludedFiles, output, headerFullPathMap);
         if (parseVal < 0)
         {
           retVal = parseVal;
@@ -163,8 +163,10 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
       }
       else if (is_header_file(itemPath))
       {
-        if (excludedFiles.end() == excludedFiles.find(Common::getBaseName(itemPath)))
+        const string headerBasename = Common::getBaseName(itemPath);
+        if (excludedFiles.end() == excludedFiles.find(headerBasename))
         {
+          headerFullPathMap[headerBasename].insert(itemPath);
           process_header_file(itemPath, excludedFiles, output);
         }
         else
@@ -190,9 +192,14 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
   int retVal = 0;
   output.clear();
   Graph tmpOutput;
+
+  // This map keeps track of duplicate items
+  // which may cause unwanted result since spinclude
+  //  requires all basename of header files in project dirs are unique
+  map<string, set<string> > headerFullPathMap; // map[basename of header] = set<full path>
   for (const string& dirName: parseDirs)
   {
-    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput);
+    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, headerFullPathMap);
     if (0 > helperRetval)
     {
       // Only stop if we hit critical error
@@ -206,6 +213,28 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     }
   }
 
+  // Check for duplicate basename
+  int totalDupBasename = 0;
+  for (const auto& nameSet : headerFullPathMap)
+  {
+    if (nameSet.second.size() > 1)
+    {
+      ++totalDupBasename;
+
+      LOG_DEBUG("Found duplicate basename " << nameSet.first << ": ");
+      for (auto fullPath : nameSet.second)
+      {
+        LOG_DEBUG("   " << fullPath);
+      }
+    }
+  }
+
+  if (totalDupBasename > 0)
+  {
+    retVal |= 8;
+    LOG_WARN("Found duplicates for " << totalDupBasename << " header basenames");
+  }
+
   // Check for non existence included file
   map<string, Node> idMap; // map[id] = node
   for (const auto & node : tmpOutput)
@@ -213,21 +242,29 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     idMap.insert(std::make_pair(node.id, node));
   }
 
+  int totalTossed = 0;
   for (auto node: tmpOutput)
   {
     for (const string& childId : node.childNodes)
     {
       if (idMap.end() == idMap.find(childId))
       {
-        LOG_WARN("Can't find " << childId
+        LOG_DEBUG("Can't find " << childId
             << " for " << node.id
             << ", tossing it out");
 
         node.childNodes.erase(childId);
+        ++totalTossed;
       }
     }
 
     output.insert(node);
+  }
+
+  if (totalTossed > 0)
+  {
+    retVal |= 4;
+    LOG_WARN("Tossed out " << totalTossed << " nonexisted included header files");
   }
 
   if (output.empty())

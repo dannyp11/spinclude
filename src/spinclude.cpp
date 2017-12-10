@@ -116,7 +116,7 @@ int main(int argc, char** argv)
   // Get proj dirs
   if (optind == argc)
   {
-    cfgData.projDirs.insert(Common::getRealPath("."));
+    cfgData.projDirs.insert(".");
   }
   else
   {
@@ -151,7 +151,9 @@ int main(int argc, char** argv)
 
   // Report cfg data
   cout << "Config data:\n";
+  cout << "----------------------------------------------\n";
   cfgData.dump(stdout);
+  cout << "----------------------------------------------\n";
 
   // Get all excluded header files
   set<string> allExcludedFiles;
@@ -161,6 +163,7 @@ int main(int argc, char** argv)
     allExcludedFiles.clear();
   }
   allExcludedFiles.insert(cfgData.excludedFiles.begin(), cfgData.excludedFiles.end());
+  LOG_DEBUG("Excluding " << allExcludedFiles.size() << " headers");
 
   // Get all target header files
   Graph headerFileGraph;
@@ -172,7 +175,7 @@ int main(int argc, char** argv)
   }
   else if (parseCode > 0)
   {
-    LOG_WARN("Error code " << parseCode << " while getting input headers");
+    LOG_WARN("Warning code " << parseCode << " while getting input headers");
   }
 
   // Now spawn the mighty solver

@@ -11,7 +11,7 @@ INSTALLDIR_BIN=$(DESTDIR)/bin/
 .PHONY: all
 
 all:
-	$(MAKE) -C $(SRC_DIR)
+	$(MAKE) -C $(SRC_DIR) -j4
 	ln -sf $(SRC_DIR)/$(BIN) $(BIN)
 
 check:	

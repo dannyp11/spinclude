@@ -32,7 +32,7 @@ const string& Node::toString() const
 
   if (childNodes.size() > 0)
   {
-    stm << " Child (";
+    stm << " -> ( ";
     for (const auto& child : childNodes)
     {
       stm << child << " ";

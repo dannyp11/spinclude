@@ -38,6 +38,7 @@ namespace ProjectParser
    *         1 if 1 of parseDirs not exists
    *         2 if no headers in all dirs
    *         4 if one included file isn't found
+   *         8 if found duplicate basename of headers
    *         <0 on critical error
    */
   int parse(const set<string>& parseDirs, const set<string>& excludedFiles,
