@@ -27,7 +27,6 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "DataStructure.h"
 #include "TarjanSolver.h"
 #include "ProjectParser.h"
 #include "ConfigFile.h"
@@ -117,7 +116,7 @@ int main(int argc, char** argv)
   // Get proj dirs
   if (optind == argc)
   {
-    cfgData.projDirs.insert(".");
+    cfgData.projDirs.insert(Common::getRealPath("."));
   }
   else
   {
@@ -150,6 +149,10 @@ int main(int argc, char** argv)
     cfgData = cfgFile.data();
   }
 
+  // Report cfg data
+  cout << "Config data:\n";
+  cfgData.dump(stdout);
+
   // Get all excluded header files
   set<string> allExcludedFiles;
   if (0 != ProjectParser::generateHeaderList(cfgData.excludedDirs, allExcludedFiles))
@@ -169,7 +172,7 @@ int main(int argc, char** argv)
   }
   else if (parseCode > 0)
   {
-    LOG_ERROR("Warning error code " << parseCode << " while getting input headers");
+    LOG_WARN("Error code " << parseCode << " while getting input headers");
   }
 
   // Now spawn the mighty solver
@@ -179,7 +182,12 @@ int main(int argc, char** argv)
     LOG_ERROR("Cannot solve!");
     safeExit(3);
   }
+  else
+  {
+    cout << "Processed " << headerFileGraph.size() << " header files" << endl;
+  }
 
+  // Don't use 1 element solution set
   auto solution = solver.getSolution();
   for (const auto& oneSet : solution)
   {
@@ -201,7 +209,7 @@ int main(int argc, char** argv)
   }
   else
   {
-    cout << "Found " << solution.size() << " circles:" << endl;
+    cout << "Found " << solution.size() << " circle(s):" << endl;
     for (const auto & oneSet : solution)
     {
       for (const string & header : oneSet)

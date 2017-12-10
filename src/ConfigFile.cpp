@@ -131,5 +131,33 @@ ConfigData::ConfigData()
   // Populate default values
   projDirs = {"dir1", "dir2"};
   excludedFiles = {"stdio.h", "stdlib.h"};
-  excludedDirs = {"/usr/include", "/usr/lib/include"};
+  excludedDirs = {"/usr/include", "/usr/lib/include", "/usr/include/linux"};
+}
+
+void ConfigData::dump(FILE* fd) const
+{
+  if (!projDirs.empty())
+  {
+    fprintf(fd, "Project dir: \n");
+    for (const string& dir:projDirs)
+    {
+      fprintf(fd, "  %s\n", dir.c_str());
+    }
+  }
+  if (!excludedDirs.empty())
+  {
+    fprintf(fd, "Exclude dir: \n");
+    for (const string& dir : excludedDirs)
+    {
+      fprintf(fd, "- %s\n", dir.c_str());
+    }
+  }
+  if (!excludedFiles.empty())
+  {
+    fprintf(fd, "Exclude file: \n");
+    for (const string& file : excludedFiles)
+    {
+      fprintf(fd, "-- %s\n", file.c_str());
+    }
+  }
 }

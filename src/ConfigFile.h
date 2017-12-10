@@ -33,6 +33,7 @@ struct ConfigData
   set<string> excludedFiles;
 
   ConfigData();
+  void dump(FILE* fd) const;
 };
 
 /**

@@ -23,6 +23,9 @@
  */
 #include "Common.h"
 #include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <string.h>
 
 static bool g_isDebugMode = false;
 
@@ -47,4 +50,29 @@ bool Common::isFileExist(const string& filePath)
   struct stat path_stat;
   stat(filePath.c_str(), &path_stat);
   return S_ISREG(path_stat.st_mode);
+}
+
+const string& Common::getBaseName(const string& path)
+{
+  static string retVal;
+  static char file_path[PATH_MAX];
+  strcpy(file_path, path.c_str());
+  retVal = basename(file_path);
+  return retVal;
+}
+
+const string& Common::getRealPath(const string& path)
+{
+  static string retVal;
+  static char file_path[PATH_MAX];
+  if (nullptr != realpath(path.c_str(), file_path))
+  {
+    retVal = file_path;
+  }
+  else
+  {
+    LOG_ERROR("Realpath " << strerror(errno));
+    retVal = "";
+  }
+  return retVal;
 }

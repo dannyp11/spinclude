@@ -53,19 +53,11 @@ bool is_header_file(const string& path, bool checkForExist = true)
   return false;
 }
 
-const string& get_basename(const string& filePath)
-{
-  static string retVal;
-  static char file_path[PATH_MAX];
-  strcpy(file_path, filePath.c_str());
-  retVal = basename(file_path);
-  return retVal;
-}
-
 void process_header_file(const string& filePath, const set<string>& excludedFiles,
     Graph& output)
 {
-  Node fileNode(get_basename(filePath));
+  const string fileName = Common::getBaseName(filePath);
+  Node fileNode(fileName);
 
   // Only the first 2000 lines of file is process for performance
   int lineNum = 0;
@@ -113,9 +105,9 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
         // in because it's clearly system include files
         if (is_header_file(includedHeader, false))
         {
-          includedHeader = get_basename(includedHeader);
+          includedHeader = Common::getBaseName(includedHeader);
           fileNode.childNodes.insert(includedHeader);
-          LOG_DEBUG("Found included file " << includedHeader);
+          LOG_DEBUG(fileName << " -> " << includedHeader);
         }
       }
     }
@@ -171,14 +163,12 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
       }
       else if (is_header_file(itemPath))
       {
-        if (excludedFiles.end() == excludedFiles.find(get_basename(itemPath)))
+        if (excludedFiles.end() == excludedFiles.find(Common::getBaseName(itemPath)))
         {
-          LOG_DEBUG("Found header " << itemPath);
           process_header_file(itemPath, excludedFiles, output);
         }
         else
         {
-          LOG_DEBUG("Ignored header " << itemPath);
           continue;
         }
       }
@@ -199,9 +189,10 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
 {
   int retVal = 0;
   output.clear();
+  Graph tmpOutput;
   for (const string& dirName: parseDirs)
   {
-    int helperRetval = parse_one_dir(dirName, excludedFiles, output);
+    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput);
     if (0 > helperRetval)
     {
       // Only stop if we hit critical error
@@ -213,6 +204,30 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
       retVal = helperRetval;
       continue;
     }
+  }
+
+  // Check for non existence included file
+  map<string, Node> idMap; // map[id] = node
+  for (const auto & node : tmpOutput)
+  {
+    idMap.insert(std::make_pair(node.id, node));
+  }
+
+  for (auto node: tmpOutput)
+  {
+    for (const string& childId : node.childNodes)
+    {
+      if (idMap.end() == idMap.find(childId))
+      {
+        LOG_WARN("Can't find " << childId
+            << " for " << node.id
+            << ", tossing it out");
+
+        node.childNodes.erase(childId);
+      }
+    }
+
+    output.insert(node);
   }
 
   if (output.empty())
@@ -264,20 +279,17 @@ int ProjectParser::generateHeaderList(const set<string>& dirs, set<string>& head
 {
   int retVal = 0;
   headerFiles.clear();
-  set<string> fullPathHeaders = {};
 
   for (const string& dirPath : dirs)
   {
+    set<string> fullPathHeaders = {};
     if (Common::isDirExist(dirPath))
     {
       retVal += generateHeaderList_helper(dirPath, fullPathHeaders);
     }
-  }
 
-  // Make header files relative path
-  for (string header: fullPathHeaders)
-  {
-    for (const string & dirPath : dirs)
+    // Make header files relative path
+    for (string header : fullPathHeaders)
     {
       if (header.size() < dirPath.size())
       {
@@ -293,13 +305,11 @@ int ProjectParser::generateHeaderList(const set<string>& dirs, set<string>& head
         {
           header = header.substr(1, header.size() - 1);
         }
-
-        break;
       }
-    }
 
-    // Finally update output
-    headerFiles.insert(header);
+      // Finally update output
+      headerFiles.insert(header);
+    }
   }
 
   return retVal;

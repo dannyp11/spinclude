@@ -37,6 +37,7 @@ namespace ProjectParser
    * @return 0 on success, other err code are bitwise updated
    *         1 if 1 of parseDirs not exists
    *         2 if no headers in all dirs
+   *         4 if one included file isn't found
    *         <0 on critical error
    */
   int parse(const set<string>& parseDirs, const set<string>& excludedFiles,
@@ -44,7 +45,7 @@ namespace ProjectParser
 
   /**
    * Recursively get header files inside dirs
-   * @param headerFiles - OUTPUT - contains full path
+   * @param headerFiles - OUTPUT - relative path to dirs
    * @return 0 on success, <0 on error
    */
   int generateHeaderList(const set<string>& dirs, set<string>& headerFiles);

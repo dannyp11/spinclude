@@ -48,6 +48,12 @@ using std::stringstream;
         <<__func__ << ") [ERROR] " << msg << std::endl;\
     } while(0)
 
+#define LOG_WARN(msg) \
+    do {if (!Common::isDebugMode()) std::cerr << "[WARNING] " << msg << std::endl;\
+        else std::cerr << __FILE__ << ":" << __LINE__ << "-(" \
+        <<__func__ << ") [WARNING] " << msg << std::endl;\
+    } while(0)
+
 #define LOG_DEBUG(msg) \
     do {if (Common::isDebugMode()) std::cerr << __FILE__ << ":" \
         << __LINE__ << "-(" <<__func__ << ") [DEBUG] " << msg << std::endl;\
@@ -66,6 +72,12 @@ bool isDebugMode();
  */
 bool isDirExist(const string& dirPath);
 bool isFileExist(const string& filePath);
+
+/**
+ * Wrappers
+ */
+const string& getBaseName(const string& path);
+const string& getRealPath(const string& path);
 }
 
 #endif /* SRC_COMMON_H_ */
