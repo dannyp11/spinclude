@@ -141,8 +141,9 @@ void ConfigData::dump(FILE* fd) const
     fprintf(fd, "Project dir: \n");
     for (const string& dir:projDirs)
     {
-      fprintf(fd, "  %s\n", dir.c_str());
+      fprintf(fd, "  %s\n", Common::getRealPath(dir).c_str());
     }
+    fprintf(fd, "\n");
   }
   if (!excludedDirs.empty())
   {
@@ -151,6 +152,7 @@ void ConfigData::dump(FILE* fd) const
     {
       fprintf(fd, "- %s\n", dir.c_str());
     }
+    fprintf(fd, "\n");
   }
   if (!excludedFiles.empty())
   {

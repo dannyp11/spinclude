@@ -92,6 +92,20 @@ bool TarjanSolver::convertToCoreNodes_()
     allTarjanNodeMap[node.id] = std::make_shared<TarjanNode>(node.id);
   }
 
+  // For tolerance, add tarjan node that exists from child nodes
+  // but not exist in node map
+  for (const Node & node : mGraph)
+  {
+    for (const string& childId : node.childNodes)
+    {
+      if (allTarjanNodeMap.end() == allTarjanNodeMap.find(childId))
+      {
+        LOG_DEBUG("Created non-existent node " << childId);
+        allTarjanNodeMap[childId] = std::make_shared<TarjanNode>(childId);
+      }
+    }
+  }
+
   // Update tarjan graph map
   for (const Node & node : mGraph)
   {
