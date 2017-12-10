@@ -31,6 +31,7 @@
 #include <memory>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 using std::map;
 using std::set;
@@ -56,7 +57,8 @@ using std::stringstream;
 
 #define LOG_DEBUG(msg) \
     do {if (Common::isDebugMode()) std::cerr << __FILE__ << ":" \
-        << __LINE__ << "-(" <<__func__ << ") [DEBUG] " << msg << std::endl;\
+        << __LINE__ << "-(" <<__func__ << ") [debug] " << msg << std::endl;\
+        else if (Common::isVerboseMode()) std::cout << "[verbose] " << msg << std::endl;\
     } while(0)
 
 namespace Common
@@ -68,6 +70,14 @@ void setDebugMode(bool enable = true);
 bool isDebugMode();
 
 /**
+ * Getter/setter for verbose mode
+ * @param dirPath
+ * @return
+ */
+void setVerboseMode(bool enable = true);
+bool isVerboseMode();
+
+/**
  * Check for existence of file/dir path
  */
 bool isDirExist(const string& dirPath);
@@ -77,6 +87,7 @@ bool isFileExist(const string& filePath);
  * Wrappers
  */
 const string& getBaseName(const string& path);
+const string& getDirName(const string& path);
 const string& getRealPath(const string& path);
 }
 

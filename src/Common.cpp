@@ -26,8 +26,10 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
+#include <libgen.h>
 
 static bool g_isDebugMode = false;
+static bool g_isVerboseMode = false;
 
 void Common::setDebugMode(bool enable)
 {
@@ -37,6 +39,16 @@ void Common::setDebugMode(bool enable)
 bool Common::isDebugMode()
 {
   return g_isDebugMode;
+}
+
+void Common::setVerboseMode(bool enable)
+{
+  g_isVerboseMode = enable;
+}
+
+bool Common::isVerboseMode()
+{
+  return g_isVerboseMode;
 }
 
 bool Common::isDirExist(const string& dirPath)
@@ -74,5 +86,14 @@ const string& Common::getRealPath(const string& path)
     LOG_ERROR("Realpath " << strerror(errno));
     retVal = "";
   }
+  return retVal;
+}
+
+const string& Common::getDirName(const string& path)
+{
+  static string retVal;
+  static char file_path[PATH_MAX];
+  strcpy(file_path, path.c_str());
+  retVal = dirname(file_path);
   return retVal;
 }

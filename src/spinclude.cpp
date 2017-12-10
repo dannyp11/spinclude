@@ -45,6 +45,7 @@ static void usage(int /*argc*/, char * argv[])
       << "  Option:" << endl
       << "    -c {cfg file}   use project config file" << endl
       << "    -g              generate config file " << DEFAULT_CFG_FILE << endl
+      << "    -v              verbose mode" << endl
       << "    -h              This message, (version " __DATE__ << " " << __TIME__ << ")" << endl << endl;
 
   exit(1);
@@ -92,7 +93,7 @@ int main(int argc, char** argv)
    * Getopt parser
    */
   int command = -1;
-  while ((command = getopt(argc, argv, "c:gDh")) != -1)
+  while ((command = getopt(argc, argv, "c:gDvh")) != -1)
   {
     switch (command)
     {
@@ -101,6 +102,9 @@ int main(int argc, char** argv)
       break;
     case 'g':
       exportDefaultCfgFile();
+      break;
+    case 'v':
+      Common::setVerboseMode(true);
       break;
     case 'D':
       cout << "Debug mode ON" << endl;

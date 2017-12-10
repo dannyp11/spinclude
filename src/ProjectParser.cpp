@@ -23,10 +23,7 @@
  */
 #include "ProjectParser.h"
 #include <dirent.h>
-#include <libgen.h>
 #include <string.h>
-#include <algorithm>
-#include <fstream>
 
 static const set<string> HEADER_EXTENSIONS = {".h", ".hpp"};
 
@@ -61,7 +58,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
 
   // Only the first 2000 lines of file is process for performance
   int lineNum = 0;
-  FILE* file = fopen(filePath.c_str(), "r"); /* should check the result */
+  FILE* file = fopen(filePath.c_str(), "r");
   char line[1024];
 
   while (fgets(line, sizeof(line), file) && lineNum++ < 2000)
@@ -221,10 +218,10 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     {
       ++totalDupBasename;
 
-      LOG_DEBUG("Found duplicate basename " << nameSet.first << ": ");
+      LOG_DEBUG("Found duplicate for " << nameSet.first << ": ");
       for (auto fullPath : nameSet.second)
       {
-        LOG_DEBUG("   " << fullPath);
+        LOG_DEBUG("   " << Common::getDirName(fullPath));
       }
     }
   }
@@ -249,10 +246,7 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     {
       if (idMap.end() == idMap.find(childId))
       {
-        LOG_DEBUG("Can't find " << childId
-            << " for " << node.id
-            << ", tossing it out");
-
+        LOG_DEBUG("Tossed out " << childId << " <-- " << node.id);
         node.childNodes.erase(childId);
         ++totalTossed;
       }

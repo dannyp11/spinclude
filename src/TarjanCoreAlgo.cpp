@@ -22,12 +22,11 @@
  * SOFTWARE.
  */
 #include "TarjanCore.h"
-#include <algorithm>
 
 // This file implements the solving of TarjanCore
 // We move solve() to here so it's all about solving the algo
 
-bool compareDenom(const shared_ptr<TarjanNode>& a,const shared_ptr<TarjanNode>& b)
+static bool compare_denom(const shared_ptr<TarjanNode>& a,const shared_ptr<TarjanNode>& b)
 {
   return a->denom > b->denom;
 }
@@ -86,7 +85,7 @@ void TarjanCore::generateFirstIterList_()
   // Now put all nodes on iterlist and sort by denom descending
   mFirstIterList = vector<shared_ptr<TarjanNode> >(mAllNodes.size());
   std::partial_sort_copy(mAllNodes.begin(), mAllNodes.end(),
-      mFirstIterList.begin(), mFirstIterList.end(), compareDenom);
+      mFirstIterList.begin(), mFirstIterList.end(), compare_denom);
 }
 
 int TarjanCore::nextIndex_()
