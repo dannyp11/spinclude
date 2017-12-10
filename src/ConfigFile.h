@@ -21,18 +21,58 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef SRC_CONFIGFILE_H_
+#define SRC_CONFIGFILE_H_
 
-#include "DataStructure.h"
-#include "TarjanSolver.h"
-#include "ProjectParser.h"
-#include "ConfigFile.h"
+#include "Common.h"
 
-int main()
+struct ConfigData
 {
-  Common::setDebugMode();
-  ConfigFile cfgFile("src/DefaultProjectDescription.cfg");
-  cfgFile.parse();
+  set<string> projDirs;
+  set<string> excludedDirs;
+  set<string> excludedFiles;
 
-  return 0;
-}
+  ConfigData();
+};
 
+/**
+ * Project cfg file parser
+ */
+class ConfigFile
+{
+public:
+  ConfigFile(const string& cfgFilePath);
+  virtual ~ConfigFile();
+
+  /**
+   * Parse data in cfg file
+   * @return true on success
+   */
+  bool parse();
+
+  /**
+   * Get parsed data
+   */
+  const ConfigData& data() const;
+
+private:
+  /**
+   * populate mParsedRawData
+   */
+  bool parseRawData_();
+
+  /**
+   * get data from mParsedRawData
+   */
+  const set<string>& getFromRawData(const string& key,
+                                    const set<string>& defaultVals);
+
+private:
+  bool mParseSuccess;
+  string mCfgFilePath;
+  ConfigData mData;
+
+  map<string, set<string>> mParsedRawData; // map[cfg item] = set<values>
+};
+
+#endif /* SRC_CONFIGFILE_H_ */
