@@ -19,10 +19,12 @@ OBJS = $(SRC:.cpp=.o)
 
 .PHONY: all
 
-all: $(BIN)
+all:
+	$(shell xxd -i DefaultProjectDescription.cfg > _default_proj_cfg.h)
+	$(MAKE) $(BIN)
 	
 clean:
-	-rm -f $(OBJS) $(BIN)
+	-rm -f $(OBJS) $(BIN) _default_proj_cfg.h
 
 # Build code #######################################
 %.o:%.cpp
