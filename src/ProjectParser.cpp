@@ -111,6 +111,16 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
   fclose(file);
 
   // Finally update output graph
+  // we will combine child list if duplicate is found
+  // this may create false positive in detecting circle
+  auto outputNodeIt = output.find(fileNode);
+  if (outputNodeIt != output.end())
+  {
+    LOG_DEBUG(*outputNodeIt);
+    fileNode.childNodes.insert(outputNodeIt->childNodes.begin(),
+                               outputNodeIt->childNodes.end());
+    output.erase(outputNodeIt);
+  }
   output.insert(fileNode);
   LOG_DEBUG(fileNode);
 }
@@ -196,6 +206,11 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
   map<string, set<string> > headerFullPathMap; // map[basename of header] = set<full path>
   for (const string& dirName: parseDirs)
   {
+    // Report
+    LOG_DEBUG("=======================================================");
+    LOG_DEBUG("Parsing " << Common::getRealPath(dirName));
+    LOG_DEBUG("=======================================================");
+
     int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, headerFullPathMap);
     if (0 > helperRetval)
     {

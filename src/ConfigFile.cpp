@@ -63,12 +63,11 @@ const ConfigData& ConfigFile::data() const
 bool ConfigFile::parseRawData_()
 {
   std::ifstream cfgFile(mCfgFilePath);
-  string rawLine;
+  string line;
   int lineNumber = 0;
-  while (std::getline(cfgFile, rawLine))
+  while (std::getline(cfgFile, line))
   {
     // First rm all spaces
-    string line = rawLine;
     ++lineNumber;
     line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
 
