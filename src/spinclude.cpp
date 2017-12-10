@@ -44,9 +44,6 @@ static void usage(int /*argc*/, char * argv[])
       << "    if [dir1 dir2...] is blank, use current pwd as project dir" << endl << endl
 
       << "  Option:" << endl
-      << "    -E {dir path}   exclude header in dir path while solving" << endl
-      << "    -e {header}     exclude header while solving" << endl
-
       << "    -c {cfg file}   use project config file" << endl
       << "    -g              generate config file " << DEFAULT_CFG_FILE << endl
       << "    -h              This message, (version " __DATE__ << " " << __TIME__ << ")" << endl << endl;
@@ -54,13 +51,8 @@ static void usage(int /*argc*/, char * argv[])
   exit(1);
 }
 
-static void cleanup()
-{
-}
-
 static void safeExit(int errCode = 0)
 {
-  cleanup();
   exit(errCode);
 }
 
@@ -93,17 +85,21 @@ static void exportDefaultCfgFile()
 
 int main(int argc, char** argv)
 {
-  string cfgFile;
+  string cfgFilePath;
   ConfigData cfgData;
+  cfgData.projDirs.clear();
 
   /**
    * Getopt parser
    */
   int command = -1;
-  while ((command = getopt(argc, argv, "gDh")) != -1)
+  while ((command = getopt(argc, argv, "c:gDh")) != -1)
   {
     switch (command)
     {
+    case 'c':
+      cfgFilePath = optarg;
+      break;
     case 'g':
       exportDefaultCfgFile();
       break;
@@ -118,6 +114,19 @@ int main(int argc, char** argv)
     }
   }
 
+  // Get proj dirs
+  if (optind == argc)
+  {
+    cfgData.projDirs.insert(".");
+  }
+  else
+  {
+    for (int i = optind; i < argc; ++i)
+    {
+      cfgData.projDirs.insert(argv[i]);
+    }
+  }
+
   // Register sig handlers
   signal(SIGINT, sigHandler);
   signal(SIGHUP, sigHandler);
@@ -128,7 +137,87 @@ int main(int argc, char** argv)
   signal(SIGFPE, errorHandler);
   signal(SIGPIPE, errorHandler);
 
+  // Now see if cfgFile is specified, if so use it instead of inputs
+  if (!cfgFilePath.empty())
+  {
+    ConfigFile cfgFile(cfgFilePath);
+    if (!cfgFile.parse())
+    {
+      LOG_ERROR("Error parsing " << cfgFilePath << ", exiting...");
+      safeExit(1);
+    }
 
+    cfgData = cfgFile.data();
+  }
+
+  // Get all excluded header files
+  set<string> allExcludedFiles;
+  if (0 != ProjectParser::generateHeaderList(cfgData.excludedDirs, allExcludedFiles))
+  {
+    LOG_ERROR("Error generating excluded files from excluded dirs, ignoring these dirs");
+    allExcludedFiles.clear();
+  }
+  allExcludedFiles.insert(cfgData.excludedFiles.begin(), cfgData.excludedFiles.end());
+
+  std::ofstream excludeList("excludes.txt");
+  for (const string& header: allExcludedFiles)
+  {
+    excludeList << header << endl;
+  }
+  excludeList.close();
+
+  // Get all target header files
+  Graph headerFileGraph;
+  int parseCode = ProjectParser::parse(cfgData.projDirs, allExcludedFiles, headerFileGraph);
+  if (0 > parseCode)
+  {
+    LOG_ERROR("Critical error code " << parseCode << " while getting input headers");
+    safeExit(2);
+  }
+  else if (parseCode > 0)
+  {
+    LOG_ERROR("Warning error code " << parseCode << " while getting input headers");
+  }
+
+  // Now spawn the mighty solver
+  TarjanSolver solver(headerFileGraph);
+  if (!solver.solve())
+  {
+    LOG_ERROR("Cannot solve!");
+    safeExit(3);
+  }
+
+  auto solution = solver.getSolution();
+  for (const auto& oneSet : solution)
+  {
+    if (oneSet.size() <=1)
+    {
+      solution.erase(oneSet);
+    }
+  }
+
+  // Report result
+  if (solution.empty())
+  {
+    cout << "No circle found in ";
+    for (const string& dirPath : cfgData.projDirs)
+    {
+      cout << dirPath << " ";
+    }
+    cout << endl;
+  }
+  else
+  {
+    cout << "Found " << solution.size() << " circles:" << endl;
+    for (const auto & oneSet : solution)
+    {
+      for (const string & header : oneSet)
+      {
+        cout << "\"" << header << "\" ";
+      }
+      cout << endl;
+    }
+  }
 
   return 0;
 }

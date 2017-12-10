@@ -41,9 +41,13 @@ namespace ProjectParser
    */
   int parse(const set<string>& parseDirs, const set<string>& excludedFiles,
       Graph& output);
-  int parse(const set<string>& parseDirs, Graph& output);
-  int parse(const string& parseDir, Graph& output);
-  int parse(const string& parseDir, const set<string>& excludedFiles, Graph& output);
+
+  /**
+   * Recursively get header files inside dirs
+   * @param headerFiles - OUTPUT - contains full path
+   * @return 0 on success, <0 on error
+   */
+  int generateHeaderList(const set<string>& dirs, set<string>& headerFiles);
 };
 
 #endif /* SRC_PROJECTPARSER_H_ */

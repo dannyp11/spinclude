@@ -26,6 +26,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <algorithm>
+#include <fstream>
 
 static const set<string> HEADER_EXTENSIONS = {".h", ".hpp"};
 
@@ -105,7 +106,6 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
       }
 
       string includedHeader = lineStr.substr(sig.size(), foundPos - sig.size());
-      includedHeader = get_basename(includedHeader);
       if (excludedFiles.end() == excludedFiles.find(includedHeader))
       {
         // Only add if not found in excluded set
@@ -113,6 +113,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
         // in because it's clearly system include files
         if (is_header_file(includedHeader, false))
         {
+          includedHeader = get_basename(includedHeader);
           fileNode.childNodes.insert(includedHeader);
           LOG_DEBUG("Found included file " << includedHeader);
         }
@@ -156,7 +157,6 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
 
       if (Common::isDirExist(itemPath))
       {
-        LOG_DEBUG("Found dir " << itemPath);
         const int parseVal = parse_one_dir(itemPath, excludedFiles, output);
         if (parseVal < 0)
         {
@@ -223,20 +223,92 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
   return retVal;
 }
 
-int ProjectParser::parse(const set<string>& parseDirs, Graph& output)
+int generateHeaderList_helper(const string& dirPath, set<string>& headerFiles)
 {
-  set<string> emptyExcludedFiles = {};
-  return parse(parseDirs, emptyExcludedFiles, output);
+  int retVal = 0;
+
+  DIR *d;
+  struct dirent *dir;
+  d = opendir(dirPath.c_str());
+  if (d)
+  {
+    while ((dir = readdir(d)) != NULL)
+    {
+      const string itemName = dir->d_name;
+      const string itemPath = dirPath + "/" + itemName;
+      if (itemName == "." || itemName == "..")
+      {
+        continue;
+      }
+
+      if (Common::isDirExist(itemPath))
+      {
+        retVal += generateHeaderList_helper(itemPath, headerFiles);
+      }
+      else if (is_header_file(itemPath))
+      {
+        headerFiles.insert(itemPath);
+      }
+      else
+      {
+        continue;
+      }
+    }
+    closedir(d);
+  }
+
+  return retVal;
 }
 
-int ProjectParser::parse(const string& parseDir, const set<string>& excludedFiles, Graph& output)
+int ProjectParser::generateHeaderList(const set<string>& dirs, set<string>& headerFiles)
 {
-  set<string> oneDir = {parseDir};
-  return parse(oneDir, excludedFiles, output);
+  int retVal = 0;
+  headerFiles.clear();
+  set<string> fullPathHeaders = {};
+
+  for (const string& dirPath : dirs)
+  {
+    if (Common::isDirExist(dirPath))
+    {
+      retVal += generateHeaderList_helper(dirPath, fullPathHeaders);
+    }
+  }
+
+  // Make header files relative path
+  for (string header: fullPathHeaders)
+  {
+    for (const string & dirPath : dirs)
+    {
+      if (header.size() < dirPath.size())
+      {
+        continue;
+      }
+      else if (0 == strncmp(header.c_str(), dirPath.c_str(), dirPath.size()))
+      {
+        // Remove dirPath in header
+        header = header.substr(dirPath.size(), header.size() - dirPath.size());
+
+        // Remove leading / in header
+        while (!header.empty() && header[0] == '/')
+        {
+          header = header.substr(1, header.size() - 1);
+        }
+
+        break;
+      }
+    }
+
+    // Finally update output
+    headerFiles.insert(header);
+  }
+
+  std::ofstream excludeList("excludes2.txt");
+  for (const string& header : headerFiles)
+  {
+    excludeList << header << endl;
+  }
+  excludeList.close();
+
+  return retVal;
 }
 
-int ProjectParser::parse(const string& parseDir, Graph& output)
-{
-  set<string> excludeNoFile = {};
-  return parse(parseDir, excludeNoFile, output);
-}
