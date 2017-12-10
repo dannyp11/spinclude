@@ -297,7 +297,7 @@ int generateHeaderList_helper(const string& dirPath, set<string>& headerFiles)
     {
       const string itemName = dir->d_name;
       const string itemPath = dirPath + "/" + itemName;
-      if (itemName == "." || itemName == "..")
+      if (itemName.empty() || itemName[0] == '.')// don't process '.' '..' or hidden items
       {
         continue;
       }
