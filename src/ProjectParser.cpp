@@ -302,13 +302,6 @@ int ProjectParser::generateHeaderList(const set<string>& dirs, set<string>& head
     headerFiles.insert(header);
   }
 
-  std::ofstream excludeList("excludes2.txt");
-  for (const string& header : headerFiles)
-  {
-    excludeList << header << endl;
-  }
-  excludeList.close();
-
   return retVal;
 }
 

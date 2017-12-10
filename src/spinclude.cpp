@@ -159,13 +159,6 @@ int main(int argc, char** argv)
   }
   allExcludedFiles.insert(cfgData.excludedFiles.begin(), cfgData.excludedFiles.end());
 
-  std::ofstream excludeList("excludes.txt");
-  for (const string& header: allExcludedFiles)
-  {
-    excludeList << header << endl;
-  }
-  excludeList.close();
-
   // Get all target header files
   Graph headerFileGraph;
   int parseCode = ProjectParser::parse(cfgData.projDirs, allExcludedFiles, headerFileGraph);
