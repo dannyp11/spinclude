@@ -161,9 +161,9 @@ int main(int argc, char** argv)
 
   // Report cfg data
   cout << "Config data:\n";
-  cout << "----------------------------------------------\n";
+  Common::printSeparator();
   cfgData.dump(stdout);
-  cout << "----------------------------------------------\n";
+  Common::printSeparator();
 
   // Get all excluded header files
   set<string> allExcludedFiles;
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
     LOG_WARN("Warning code " << parseCode << " while getting input headers");
   }
 
-  // Now spawn the mighty solver
+  // Now spawn the mighty solver ----------------------------------------
   TarjanSolver solver(headerFileGraph);
   if (!solver.solve())
   {
@@ -209,22 +209,20 @@ int main(int argc, char** argv)
       solution.erase(oneSet);
     }
   }
+  // --------------------------------------------------------------------
 
-  // Report result
+  // Report result -------------------------------------------------------
+  Common::printSeparator(2);
   if (solution.empty())
   {
-    cout << "No circle found in ";
-    for (const string& dirPath : cfgData.projDirs)
-    {
-      cout << dirPath << " ";
-    }
-    cout << endl;
+    cout << "-- No circle found" << endl;
   }
   else
   {
-    cout << "Found " << solution.size() << " circle(s):" << endl;
+    cout << "++ Found " << solution.size() << " circle(s):" << endl << endl;
     for (const auto & oneSet : solution)
     {
+      cout << "   ";
       for (const string & header : oneSet)
       {
         cout << "\"" << header << "\" ";
@@ -232,6 +230,8 @@ int main(int argc, char** argv)
       cout << endl;
     }
   }
+  Common::printSeparator(2);
+  // --------------------------------------------------------------------
 
   return 0;
 }

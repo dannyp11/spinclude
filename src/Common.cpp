@@ -34,6 +34,7 @@ static bool g_isVerboseMode = false;
 void Common::setDebugMode(bool enable)
 {
   g_isDebugMode = enable;
+  g_isVerboseMode |= enable;
 }
 
 bool Common::isDebugMode()
@@ -83,7 +84,7 @@ const string& Common::getRealPath(const string& path)
   }
   else
   {
-    LOG_WARN("Realpath for " << path << ": " << strerror(errno));
+    LOG_DEBUG("Realpath for " << path << ": " << strerror(errno));
     retVal = path;
   }
   return retVal;
@@ -96,4 +97,13 @@ const string& Common::getDirName(const string& path)
   strcpy(file_path, path.c_str());
   retVal = dirname(file_path);
   return retVal;
+}
+
+void Common::printSeparator(unsigned level, FILE* fd)
+{
+  static const char levelChars[] = {'-', '='};
+  static const size_t SEPARATOR_LEN = 80;
+
+  level = (level>sizeof(levelChars))? sizeof(levelChars) - 1 : level-1; // don't go over limit
+  fprintf(fd, "%s\n", string(SEPARATOR_LEN, levelChars[level]).c_str());
 }

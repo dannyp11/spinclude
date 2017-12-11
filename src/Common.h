@@ -89,6 +89,11 @@ bool isFileExist(const string& filePath);
 const string& getBaseName(const string& path);
 const string& getDirName(const string& path);
 const string& getRealPath(const string& path);
+
+/**
+ * Print out separator, levels can be 1,2
+ */
+void printSeparator(unsigned level = 1, FILE* fd = stdout);
 }
 
 #endif /* SRC_COMMON_H_ */

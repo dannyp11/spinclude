@@ -116,13 +116,21 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
   auto outputNodeIt = output.find(fileNode);
   if (outputNodeIt != output.end())
   {
-    LOG_DEBUG(*outputNodeIt);
     fileNode.childNodes.insert(outputNodeIt->childNodes.begin(),
                                outputNodeIt->childNodes.end());
     output.erase(outputNodeIt);
   }
   output.insert(fileNode);
-  LOG_DEBUG(fileNode);
+
+  // Only print node that has child in verbose mode
+  if (Common::isDebugMode())
+  {
+    LOG_DEBUG(fileNode);
+  }
+  else if (!fileNode.childNodes.empty())
+  {
+    LOG_DEBUG(fileNode);
+  }
 }
 
 /**
@@ -207,9 +215,12 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
   for (const string& dirName: parseDirs)
   {
     // Report
-    LOG_DEBUG("=======================================================");
-    LOG_DEBUG("Parsing " << Common::getRealPath(dirName));
-    LOG_DEBUG("=======================================================");
+    if (Common::isVerboseMode())
+    {
+      Common::printSeparator(2);
+      LOG_DEBUG("Parsing " << Common::getRealPath(dirName));
+      Common::printSeparator(2);
+    }
 
     int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, headerFullPathMap);
     if (0 > helperRetval)
