@@ -1,6 +1,7 @@
 # src data --------------------------------------------------------
 SRC_DIR := src
-BIN     := spinclude
+BIN      = spinclude 
+UTIL     = tarjan-util
 # -----------------------------------------------------------------
 
 # Install data ----------------------------------------------------
@@ -13,13 +14,14 @@ INSTALLDIR_BIN=$(DESTDIR)/bin/
 all:
 	$(MAKE) -C $(SRC_DIR) -j4
 	ln -sf $(SRC_DIR)/$(BIN) $(BIN)
+	ln -sf $(SRC_DIR)/$(UTIL) $(UTIL)
 
 check:	
 	$(MAKE) check -C $(SRC_DIR)
 	
 clean:
 	$(MAKE) clean -C $(SRC_DIR)
-	rm -f $(BIN)
+	rm -f $(BIN) $(UTIL)
 
 install: all
 	mkdir -p $(INSTALLDIR_BIN)

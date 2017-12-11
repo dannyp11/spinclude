@@ -1,6 +1,6 @@
 # Unit test data
 INCLUDES = .
-MAIN_FILES = spinclude.cpp #main.cpp
+MAIN_FILES = spinclude.cpp tarjan-util.cpp
 
 # Compiler flags -------------------------------------------------
 CXX ?=g++

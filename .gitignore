@@ -35,3 +35,4 @@ src/_default_proj_cfg.h
 */spinclude
 spinclude
 .gdb_history
+tarjan-util
