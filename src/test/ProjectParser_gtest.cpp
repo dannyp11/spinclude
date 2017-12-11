@@ -77,7 +77,6 @@ TEST_F(ProjParserTest, testHasHeaderWithIncludeDir)
   set<string> excludeFiles = {"stdio.h"};
   Graph graph;
 
-  Common::setDebugMode();
   ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph));
   ASSERT_EQ(6, graph.size());
 }

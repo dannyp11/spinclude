@@ -33,12 +33,11 @@ TEST_IFLAGS	    = $(foreach d, $(GTEST_INCLUDES), -I$d) $(IFLAGS)
 # main rules to run
 ##########################################################################################
 TEST_GEN: $(GTEST_LIB)
-	$(MAKE) test_compile
+	$(MAKE) test_compile -j4
 
-check:
-	$(MAKE) TEST_GEN -j4
+check: TEST_GEN
 	@printf "Running test binaries \n\n"
-	$(foreach bin, $(TEST_BINARIES), ./$(bin) --gtest_print_time=0; )
+	for bin in $(TEST_BINARIES); do ./$$bin --gtest_print_time=0 || exit $? ; done # abort when fail
 	@printf "\nDone running tests\n"
 	$(MAKE) cleantest > /dev/null
 ##########################################################################################
