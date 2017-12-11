@@ -20,15 +20,14 @@ GTEST_OBJS = $(patsubst %.cc, %.ogtest, $(GTEST_SRC))
 GTEST_OBJS := $(filter-out %.cc, $(GTEST_OBJS))
 
 # test objects definition
-MAIN_FILE       ?= main.cpp
 TEST_HEADERS    := $(wildcard test/*gtest.cpp) 
 TEST_EXTRA_SRCS := $(filter-out $(TEST_HEADERS), $(wildcard test/*.cpp))
-MAIN_OBJS	    = $(patsubst %.cpp, %.o, $(MAIN_FILE)) # exclude main() files
-TEST_OBJECTS    := $(filter-out $(MAIN_OBJS),$(OBJS)) $(patsubst %.cpp, %.o, $(TEST_EXTRA_SRCS))
+TEST_OBJECTS    := $(OBJS) $(TEST_EXTRA_SRCS:.cpp=.o)
 TEST_BIN_OBJS	=  $(patsubst %.cpp, %.ogtest, $(TEST_HEADERS))
 
 TEST_BINARIES   = $(patsubst %.cpp, %.gtest, $(TEST_HEADERS))
 TEST_IFLAGS	    = $(foreach d, $(GTEST_INCLUDES), -I$d) $(IFLAGS)
+TEST_LDFLAGS    = -pthread $(LDFLAGS)
 
 # main rules to run
 ##########################################################################################
@@ -45,7 +44,7 @@ check: TEST_GEN
 test_compile: $(TEST_OBJECTS) $(TEST_BIN_OBJS) $(TEST_BINARIES)
 
 %.gtest: %.ogtest
-	$(CXX) $(TEST_CFLAGS) $(LDFLAGS) $(TEST_IFLAGS) $(TEST_OBJECTS) $< $(GTEST_LIB) -o $@
+	$(CXX) $(TEST_CFLAGS) $(TEST_LDFLAGS) $(TEST_IFLAGS) $(TEST_OBJECTS) $< $(GTEST_LIB) -o $@
 
 %.ogtest: %.cpp
 	$(CXX) -c $(TEST_CFLAGS) $(TEST_IFLAGS) -o $@ $<

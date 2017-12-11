@@ -1,36 +1,38 @@
 # Unit test data
 INCLUDES = .
-MAIN_FILE = spinclude.cpp
+MAIN_FILES = spinclude.cpp #main.cpp
 
 # Compiler flags -------------------------------------------------
 CXX ?=g++
 DEBUG = -Os
 CFLAGS = -Wall -Wextra -Werror $(DEBUG) -std=c++11
 IFLAGS = $(foreach d, $(INCLUDES), -I$d)
-LDFLAGS = -pthread -rdynamic
+LDFLAGS = -rdynamic
 ARCHFLAGS = 
 # Compiler flags ends ---------------------------------------------
 
 # Config build structure ##########################################
-BIN ?= spinclude
-SRC = $(wildcard *.cpp)
-OBJS = $(SRC:.cpp=.o)
+BINS        := $(patsubst %.cpp,%,$(MAIN_FILES))
+SRC         = $(filter-out $(MAIN_FILES), $(wildcard *.cpp))
+BIN_OBJS    = $(MAIN_FILES:.cpp=.o)
+OBJS        = $(SRC:.cpp=.o)
 # Config build structure end ######################################
 
 .PHONY: all
 
-all:
+all: 
 	$(shell xxd -i DefaultProjectDescription.cfg > _default_proj_cfg.h)
-	$(MAKE) $(BIN)
+	@$(MAKE) $(BIN_OBJS)
+	@$(MAKE) $(BINS)
 	
 clean:
-	-rm -f $(OBJS) $(BIN) _default_proj_cfg.h
+	-rm -f $(OBJS) $(BINS) $(BIN_OBJS) _default_proj_cfg.h
 
 # Build code #######################################
 %.o:%.cpp
 	$(CXX) -c $(CFLAGS) $(IFLAGS) $(ARCHFLAGS) $< -o $@
-
-$(BIN): $(OBJS)
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(IFLAGS) $(ARCHFLAGS) -o $@
+	
+%:%.o $(BIN_OBJS) $(OBJS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $< $(IFLAGS) $(ARCHFLAGS) -o $@
 
 include gtest.mk
