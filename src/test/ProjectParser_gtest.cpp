@@ -48,7 +48,8 @@ TEST_F(ProjParserTest, testNoHeaderDir)
   set<string> allDirs = {mNoHeaderDir};
   set<string> excludeFiles = {};
   Graph graph;
-  ASSERT_EQ(2, ProjectParser::parse(allDirs, excludeFiles, graph));
+  ProjectParser::HeaderLocationMap locationMap;
+  ASSERT_EQ(2, ProjectParser::parse(allDirs, excludeFiles, graph, locationMap));
 }
 
 TEST_F(ProjParserTest, testHasHeaderDir)
@@ -56,8 +57,9 @@ TEST_F(ProjParserTest, testHasHeaderDir)
   set<string> allDirs = {mHasHeaderDir};
   set<string> excludeFiles = {};
   Graph graph;
+  ProjectParser::HeaderLocationMap locationMap;
 
-  ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph));
+  ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph, locationMap));
   ASSERT_EQ(6, graph.size());
 }
 
@@ -66,8 +68,9 @@ TEST_F(ProjParserTest, testHasHeaderDirs)
   set<string> allDirs = {mNoHeaderDir, mHasHeaderDir, mHasHeaderDir};
   set<string> excludeFiles = {};
   Graph graph;
+  ProjectParser::HeaderLocationMap locationMap;
 
-  ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph));
+  ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph, locationMap));
   ASSERT_EQ(6, graph.size());
 }
 
@@ -76,7 +79,8 @@ TEST_F(ProjParserTest, testHasHeaderWithIncludeDir)
   set<string> allDirs = {mHasHeaderWithIncludeDir};
   set<string> excludeFiles = {"stdio.h"};
   Graph graph;
+  ProjectParser::HeaderLocationMap locationMap;
 
-  ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph));
+  ASSERT_EQ(0, ProjectParser::parse(allDirs, excludeFiles, graph, locationMap));
   ASSERT_EQ(6, graph.size());
 }
