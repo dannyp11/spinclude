@@ -202,27 +202,24 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
 }
 
 int ProjectParser::parse(const set<string>& parseDirs, const set<string>& excludedFiles,
-    Graph& output)
+    Graph& output, HeaderLocationMap& outputLocationMap)
 {
   int retVal = 0;
   output.clear();
+  outputLocationMap.clear();
   Graph tmpOutput;
 
   // This map keeps track of duplicate items
   // which may cause unwanted result since spinclude
   //  requires all basename of header files in project dirs are unique
-  map<string, set<string> > headerFullPathMap; // map[basename of header] = set<full path>
   for (const string& dirName: parseDirs)
   {
     // Report
-    if (Common::isVerboseMode())
-    {
-      Common::printSeparator(2);
-      LOG_DEBUG("Parsing " << Common::getRealPath(dirName));
-      Common::printSeparator(2);
-    }
+    Common::printSeparator(2, true);
+    LOG_DEBUG("Parsing " << Common::getRealPath(dirName));
+    Common::printSeparator(2, true);
 
-    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, headerFullPathMap);
+    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, outputLocationMap);
     if (0 > helperRetval)
     {
       // Only stop if we hit critical error
@@ -238,7 +235,7 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
 
   // Check for duplicate basename
   int totalDupBasename = 0;
-  for (const auto& nameSet : headerFullPathMap)
+  for (const auto& nameSet : outputLocationMap)
   {
     if (nameSet.second.size() > 1)
     {

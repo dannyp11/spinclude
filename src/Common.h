@@ -93,7 +93,8 @@ const string& getRealPath(const string& path);
 /**
  * Print out separator, levels can be 1,2
  */
-void printSeparator(unsigned level = 1, FILE* fd = stdout);
+void printSeparatorFd(unsigned level, FILE* fd);
+void printSeparator(unsigned level = 1, bool isVerboseModeOnly = false);
 }
 
 #endif /* SRC_COMMON_H_ */

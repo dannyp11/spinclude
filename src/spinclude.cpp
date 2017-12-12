@@ -177,7 +177,9 @@ int main(int argc, char** argv)
 
   // Get all target header files
   Graph headerFileGraph;
-  int parseCode = ProjectParser::parse(cfgData.projDirs, allExcludedFiles, headerFileGraph);
+  ProjectParser::HeaderLocationMap headerPathMap;
+  int parseCode = ProjectParser::parse(cfgData.projDirs, allExcludedFiles,
+                                       headerFileGraph, headerPathMap);
   if (0 > parseCode)
   {
     LOG_ERROR("Critical error code " << parseCode << " while getting input headers");
@@ -185,7 +187,7 @@ int main(int argc, char** argv)
   }
   else if (parseCode > 0)
   {
-    LOG_WARN("Warning code " << parseCode << " while getting input headers");
+    LOG_DEBUG("Warning code " << parseCode << " while getting input headers");
   }
 
   // Now spawn the mighty solver ----------------------------------------
@@ -222,12 +224,29 @@ int main(int argc, char** argv)
     cout << "++ Found " << solution.size() << " circle(s):" << endl << endl;
     for (const auto & oneSet : solution)
     {
+      Common::printSeparator(1, true);
       cout << "   ";
       for (const string & header : oneSet)
       {
         cout << "\"" << header << "\" ";
       }
       cout << endl;
+
+      // Report detailed path
+      for (const auto header : oneSet)
+      {
+        const auto headerPathSetIt = headerPathMap.find(header);
+        if (Common::isVerboseMode()
+            && headerPathMap.end() != headerPathSetIt
+            && !headerPathSetIt->second.empty())
+        {
+          std::cerr << "   -- " << header << endl;
+          for (const auto path: headerPathSetIt->second)
+          {
+            std::cerr << "      " << Common::getDirName(path) << endl;
+          }
+        }
+      }
     }
   }
   Common::printSeparator(2);

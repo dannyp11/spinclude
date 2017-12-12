@@ -28,12 +28,17 @@
 
 namespace ProjectParser
 {
+  /// map<header> = set<header path>
+  typedef map<string,set<string> > HeaderLocationMap;
+
   /**
    * This is the C/C++ header parser
    * @param parseDirs     Input: set of dirs to search recursively
    * @param excludedFiles Input: set of excluded files
    * @param output        Output: Graph of all nodes of header files,
    *                              child nodes are included files
+   * @param outputLocationMap Output: relative path to header files in output
+   *                          ideally set<header path> should have size 1
    * @return 0 on success, other err code are bitwise updated
    *         1 if 1 of parseDirs not exists
    *         2 if no headers in all dirs
@@ -42,7 +47,7 @@ namespace ProjectParser
    *         <0 on critical error
    */
   int parse(const set<string>& parseDirs, const set<string>& excludedFiles,
-      Graph& output);
+      Graph& output, HeaderLocationMap& outputLocationMap);
 
   /**
    * Recursively get header files inside dirs

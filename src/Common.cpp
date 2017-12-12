@@ -99,11 +99,20 @@ const string& Common::getDirName(const string& path)
   return retVal;
 }
 
-void Common::printSeparator(unsigned level, FILE* fd)
+void Common::printSeparatorFd(unsigned level, FILE* fd)
 {
   static const char levelChars[] = {'-', '='};
   static const size_t SEPARATOR_LEN = 80;
 
   level = (level>sizeof(levelChars))? sizeof(levelChars) - 1 : level-1; // don't go over limit
   fprintf(fd, "%s\n", string(SEPARATOR_LEN, levelChars[level]).c_str());
+}
+
+void Common::printSeparator(unsigned level, bool isVerboseModeOnly)
+{
+  if (isVerboseModeOnly && !Common::isVerboseMode())
+  {
+    return;
+  }
+  printSeparatorFd(level, stderr);
 }
