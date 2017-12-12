@@ -240,11 +240,19 @@ int main(int argc, char** argv)
             && headerPathMap.end() != headerPathSetIt
             && !headerPathSetIt->second.empty())
         {
-          std::cerr << "   -- " << header << endl;
           for (const auto path: headerPathSetIt->second)
           {
-            std::cerr << "      " << Common::getDirName(path) << endl;
+            if (path == *(headerPathSetIt->second.begin()))
+            {
+              std::cerr << "   -- ";
+            }
+            else
+            {
+              std::cerr << "      ";
+            }
+            std::cerr << path << endl;
           }
+          std::cerr << endl;
         }
       }
     }
