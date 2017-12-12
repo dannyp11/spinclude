@@ -16,7 +16,12 @@ all:
 	ln -sf $(SRC_DIR)/$(BIN) $(BIN)
 	ln -sf $(SRC_DIR)/$(UTIL) $(UTIL)
 
-check:	
+check:
+	@if [ ! -d submodules/googletest/googletest ]; then \
+	    echo "ERROR: GoogleTest not found, did you forget to run" ; \
+	    echo "  git submodule update --init --recursive ?"; \
+	    exit 1 ;\
+	fi
 	$(MAKE) check -C $(SRC_DIR)
 	
 clean:
