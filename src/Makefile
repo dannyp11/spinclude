@@ -20,7 +20,7 @@ OBJS        = $(SRC:.cpp=.o)
 
 .PHONY: all
 
-all: 
+all: $(OBJS)
 	$(shell xxd -i DefaultProjectDescription.cfg > _default_proj_cfg.h)
 	@$(MAKE) $(BIN_OBJS)
 	@$(MAKE) $(BINS)
