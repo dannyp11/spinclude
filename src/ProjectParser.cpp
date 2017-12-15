@@ -51,10 +51,11 @@ bool is_header_file(const string& path, bool checkForExist = true)
 }
 
 void process_header_file(const string& filePath, const set<string>& excludedFiles,
-    Graph& output)
+    Graph& output, Graph& detailOutput)
 {
   const string fileName = Common::getBaseName(filePath);
   Node fileNode(fileName);
+  Node fileRealNode(filePath);
 
   // Only the first 2000 lines of file is process for performance
   int lineNum = 0;
@@ -104,11 +105,15 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
         {
           includedHeader = Common::getBaseName(includedHeader);
           fileNode.childNodes.insert(includedHeader);
+          fileRealNode.childNodes.insert(includedHeader);
         }
       }
     }
   }
   fclose(file);
+
+  // Let's update detail output first before combining duplicates
+  detailOutput.insert(fileRealNode);
 
   // Finally update output graph
   // we will combine child list if duplicate is found
@@ -138,7 +143,7 @@ void process_header_file(const string& filePath, const set<string>& excludedFile
  * @return same as ProjectParser::parse
  */
 int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
-    Graph& output, map<string, set<string> >& headerFullPathMap)
+    Graph& output, ProjectParser::HeaderLocationMap& headerFullPathMap, Graph& detailOutput)
 {
   int retVal = 0;
   // check for existence
@@ -164,7 +169,8 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
 
       if (Common::isDirExist(itemPath))
       {
-        const int parseVal = parse_one_dir(itemPath, excludedFiles, output, headerFullPathMap);
+        const int parseVal = parse_one_dir(itemPath, excludedFiles, output,
+                                            headerFullPathMap, detailOutput);
         if (parseVal < 0)
         {
           retVal = parseVal;
@@ -182,7 +188,7 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
         if (excludedFiles.end() == excludedFiles.find(headerBasename))
         {
           headerFullPathMap[headerBasename].insert(itemPath);
-          process_header_file(itemPath, excludedFiles, output);
+          process_header_file(itemPath, excludedFiles, output, detailOutput);
         }
         else
         {
@@ -202,11 +208,12 @@ int parse_one_dir(const string& dirPath, const set<string>& excludedFiles,
 }
 
 int ProjectParser::parse(const set<string>& parseDirs, const set<string>& excludedFiles,
-    Graph& output, HeaderLocationMap& outputLocationMap)
+    Graph& output, Graph& detailOutput, HeaderLocationMap& outputLocationMap)
 {
   int retVal = 0;
   output.clear();
   outputLocationMap.clear();
+  detailOutput.clear();
   Graph tmpOutput;
 
   // This map keeps track of duplicate items
@@ -219,7 +226,7 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     LOG_DEBUG("Parsing " << Common::getRealPath(dirName));
     Common::printSeparator(2, true);
 
-    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, outputLocationMap);
+    int helperRetval = parse_one_dir(dirName, excludedFiles, tmpOutput, outputLocationMap, detailOutput);
     if (0 > helperRetval)
     {
       // Only stop if we hit critical error

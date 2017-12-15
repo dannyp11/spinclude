@@ -37,6 +37,8 @@ namespace ProjectParser
    * @param excludedFiles Input: set of excluded files
    * @param output        Output: Graph of all nodes of header files,
    *                              child nodes are included files
+   * @param detailOutput  Output: Graph of all nodes of header files that
+   *                              has unique path
    * @param outputLocationMap Output: relative path to header files in output
    *                          ideally set<header path> should have size 1
    * @return 0 on success, other err code are bitwise updated
@@ -47,7 +49,7 @@ namespace ProjectParser
    *         <0 on critical error
    */
   int parse(const set<string>& parseDirs, const set<string>& excludedFiles,
-      Graph& output, HeaderLocationMap& outputLocationMap);
+      Graph& output, Graph& detailOutput, HeaderLocationMap& outputLocationMap);
 
   /**
    * Recursively get header files inside dirs

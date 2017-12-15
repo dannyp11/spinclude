@@ -176,10 +176,10 @@ int main(int argc, char** argv)
   LOG_DEBUG("Excluding " << allExcludedFiles.size() << " headers");
 
   // Get all target header files
-  Graph headerFileGraph;
+  Graph headerFileGraph, detailHeaderFileGraph;
   ProjectParser::HeaderLocationMap headerPathMap;
   int parseCode = ProjectParser::parse(cfgData.projDirs, allExcludedFiles,
-                                       headerFileGraph, headerPathMap);
+                                       headerFileGraph, detailHeaderFileGraph, headerPathMap);
   if (0 > parseCode)
   {
     LOG_ERROR("Critical error code " << parseCode << " while getting input headers");
@@ -251,6 +251,23 @@ int main(int argc, char** argv)
               std::cerr << "      ";
             }
             std::cerr << path << endl;
+
+            // print relevant included headers from path
+            const auto pathRealNodeIt = detailHeaderFileGraph.find(Node(path));
+            if (pathRealNodeIt == detailHeaderFileGraph.end())
+            {
+              LOG_ERROR("Can't find included headers for "<< path);
+            }
+            else
+            {
+              for (const string& childHeader : pathRealNodeIt->childNodes)
+              {
+                if (oneSet.end() != oneSet.find(childHeader))
+                {
+                  cout << "          |_ " << childHeader << endl;
+                }
+              }
+            }
           }
           std::cerr << endl;
         }
