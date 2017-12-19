@@ -269,26 +269,40 @@ int ProjectParser::parse(const set<string>& parseDirs, const set<string>& exclud
     idMap.insert(std::make_pair(node.id, node));
   }
 
-  int totalTossed = 0;
+  HeaderLocationMap tossedOutMap;
   for (auto node: tmpOutput)
   {
     for (const string& childId : node.childNodes)
     {
       if (idMap.end() == idMap.find(childId))
       {
-        LOG_DEBUG("Tossed out " << childId << " <-- " << node.id);
+        tossedOutMap[childId].insert(node.id);
         node.childNodes.erase(childId);
-        ++totalTossed;
       }
     }
 
     output.insert(node);
   }
 
-  if (totalTossed > 0)
+  if (!tossedOutMap.empty())
   {
+    // Report what's tossed out
+    std::stringstream stm;
+    for (const auto& item : tossedOutMap)
+    {
+      stm.str("");
+      stm << "Tossed out " << item.first << " <-- (";
+
+      for (const string & tossParent : item.second)
+      {
+        stm << " " << tossParent;
+      }
+      stm << " )";
+      LOG_DEBUG(stm.str());
+    }
+
     retVal |= 4;
-    LOG_WARN("Tossed out " << totalTossed << " nonexisted included header files");
+    LOG_WARN("Tossed out " << tossedOutMap.size() << " nonexisted included header files");
   }
 
   if (output.empty())
