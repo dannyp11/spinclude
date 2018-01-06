@@ -129,7 +129,6 @@ ConfigData::ConfigData()
 {
   // Populate default values
   projDirs = {"dir1", "dir2"};
-  excludedFiles = {"stdio.h", "stdlib.h"};
   excludedDirs = {"/usr/include", "/usr/lib/include", "/usr/include/linux"};
 }
 
