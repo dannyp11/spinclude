@@ -5,7 +5,7 @@ MAIN_FILES = spinclude.cpp tarjan-util.cpp
 # Compiler flags -------------------------------------------------
 CXX ?=g++
 DEBUG = -Os
-CFLAGS = -Wall -Wextra -Werror $(DEBUG) -std=c++11
+CFLAGS = -Wall -Wextra -Werror -Wno-format $(DEBUG) -std=c++11
 IFLAGS = $(foreach d, $(INCLUDES), -I$d)
 LDFLAGS = -rdynamic
 ARCHFLAGS = 

@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+#include <errno.h>
 
 static bool g_isDebugMode = false;
 static bool g_isVerboseMode = false;
